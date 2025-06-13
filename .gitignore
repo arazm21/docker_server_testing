@@ -1,0 +1,6 @@
+.venv
+__pycache__
+mlruns
+.env
+downloaded_models
+folder_database/features.db

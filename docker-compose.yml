@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  database:
+    build:
+      context: ./folder_database
+    image: database_image
+    container_name: database_container
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --reload
+    volumes:
+      - ./folder_database:/app
+    depends_on:
+      - model
+
+  broker:
+    build:
+      context: ./folder_broker
+    image: broker_image
+    container_name: broker_container
+    ports:
+      - "3000:3000"
+    command: uvicorn app:app --host 0.0.0.0 --reload --port 3000
+    volumes:
+      - ./folder_broker:/app
+    depends_on:
+      - database
+      - model
+
+  model:
+    build:
+      context: ./folder_model
+    image: model_server_image
+    container_name: model_container
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./folder_model:/app
+    # command: >
+    #   mlflow models serve -m /app/model -h 0.0.0.0 -p 5000 --env-manager=local
