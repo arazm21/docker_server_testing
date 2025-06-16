@@ -1,8 +1,8 @@
 build:
   docker:
-    web: folder_broker/Dockerfile
-    worker-database: folder_database/Dockerfile
-    worker-model: folder_model/Dockerfile
+    web: ./folder_broker/Dockerfile
+    worker-database: ./folder_database/Dockerfile
+    worker-model: ./folder_model/Dockerfile
 
 run:
   web:
