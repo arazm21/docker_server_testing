@@ -1,29 +1,27 @@
+# heroku.yml
 build:
   docker:
-    web: ./folder_broker/Dockerfile
-    worker-database: ./folder_database/Dockerfile
-    worker-model: ./folder_model/Dockerfile
-
+    web: folder_broker/Dockerfile
+    database: folder_database/Dockerfile
+    model: folder_model/Dockerfile
 run:
   web:
     command:
       - uvicorn
-      - app:app
+      - "app:app"
       - --host
       - 0.0.0.0
       - --port
-      - "$PORT"
-  worker-database:
-    image: worker-database
+      - $PORT
+  database:
     command:
       - uvicorn
-      - app.main:app
+      - "app.main:app"
       - --host
       - 0.0.0.0
       - --port
       - "8000"
-  worker-model:
-    image: worker-model
+  model:
     command:
       - mlflow
       - models
