@@ -1,8 +1,8 @@
 # heroku.yml
 build:
   docker:
-    web: folder_broker/Dockerfile
-    database: folder_database/Dockerfile
+    web: folder_broker/dockerfile
+    database: folder_database/dockerfile
     model: folder_model/Dockerfile
 run:
   web:
