@@ -1,16 +1,37 @@
 build:
   docker:
-    # This dyno will handle incoming HTTP traffic (your broker)
     web: folder_broker/Dockerfile
-    # Background processes for database and model
-    database: folder_database/Dockerfile
-    model: folder_model/Dockerfile
+    worker-database: folder_database/Dockerfile
+    worker-model: folder_model/Dockerfile
 
 run:
-  web: uvicorn app:app --host 0.0.0.0 --port $PORT
-  database:
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    image: database
-  model:
-    command: mlflow models serve -m /app/model -h 0.0.0.0 -p 5000 --env-manager=local
-    image: model
+  web:
+    command:
+      - uvicorn
+      - app:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "$PORT"
+  worker-database:
+    image: worker-database
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+  worker-model:
+    image: worker-model
+    command:
+      - mlflow
+      - models
+      - serve
+      - -m
+      - /app/model
+      - -h
+      - 0.0.0.0
+      - -p
+      - "5000"
+      - --env-manager=local
