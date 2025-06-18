@@ -1,6 +1,18 @@
 version: "3.9"
 
 services:
+
+  
+  rabbitmq:
+    image: rabbitmq:3.10-management
+    container_name: wine_rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
   database:
     build:
       context: ./folder_database

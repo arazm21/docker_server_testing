@@ -1,82 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Wine Quality Predictor</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 50px auto;
-            max-width: 500px;
-            text-align: center;
-        }
-        input {
-            padding: 5px;
-            margin: 10px;
-            width: 200px;
-        }
-        button {
-            padding: 10px 20px;
-            margin-top: 20px;
-        }
-        .result, .error {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        .error {
-            color: red;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wine Quality Predictor</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2em; background: #f5f5f5; }
+    form { max-width: 400px; margin: auto; background: #fff; padding: 1.5em; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 1em; }
+    input { width: 100%; padding: 0.5em; margin-top: 0.25em; border: 1px solid #ccc; border-radius: 4px; }
+    button { margin-top: 1.5em; padding: 0.75em; background: #4CAF50; color: #fff; border: none; width: 100%; font-size: 1em; border-radius: 4px; cursor: pointer; }
+    .result { max-width: 600px; margin: 2em auto; background: #fff; padding: 1em; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    pre { background: #eee; padding: 0.5em; border-radius: 4px; overflow-x: auto; }
+  </style>
 </head>
 <body>
+  <h1 style="text-align:center;">Wine Quality Predictor</h1>
+  <form method="get" action="/predict">
+    <label>Wine ID<input type="number" name="wine_id" required></label>
+    <label>Real Time Measurement<input type="number" step="any" name="real_time_measurement" required></label>
+    <button type="submit">Predict</button>
+  </form>
 
-    <h1>Wine Quality Predictor</h1>
-
-    <div>
-        <label for="wineId">Wine ID:</label><br>
-        <input type="number" id="wineId" required><br>
-
-        <label for="realTimeMeasurement">Real-Time Measurement:</label><br>
-        <input type="number" id="realTimeMeasurement" step="any" required><br>
-
-        <button onclick="predict()">Predict</button>
-
-        <div id="result" class="result"></div>
-        <div id="error" class="error"></div>
-    </div>
-
-    <script>
-        async function predict() {
-            const wineId = document.getElementById('wineId').value;
-            const realTimeMeasurement = document.getElementById('realTimeMeasurement').value;
-
-            document.getElementById('result').textContent = '';
-            document.getElementById('error').textContent = '';
-
-            if (!wineId || !realTimeMeasurement) {
-                document.getElementById('error').textContent = 'Please enter both values.';
-                return;
-            }
-
-            try {
-              const response = await fetch(`/predict?wine_id=${wineId}&real_time_measurement=${realTimeMeasurement}`);
-              
-              if (!response.ok) {
-                  const errorData = await response.json();
-                  throw new Error(errorData.detail || 'Error occurred');
-              }
-
-              const data = await response.json();
-
-              // Extract prediction from nested structure
-              const predictionValue = data.prediction.predictions[0];
-
-              document.getElementById('result').textContent = 'Prediction: ' + predictionValue.toFixed(3);
-          } catch (err) {
-              document.getElementById('error').textContent = err.message;
-          }
-        }
-    </script>
-
+  {% if prediction is defined %}
+  <div class="result">
+    <h2>Prediction: {{ prediction }}</h2>
+    {% if features %}
+    <h3>Features used:</h3>
+    <pre>{{ features | tojson(indent=2) }}</pre>
+    {% endif %}
+  </div>
+  {% endif %}
 </body>
 </html>
