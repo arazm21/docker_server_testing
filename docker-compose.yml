@@ -2,7 +2,41 @@ version: "3.9"
 
 services:
 
-  
+  worker:
+    build:
+      context: ./folder_worker
+    image: wine_worker_image
+    container_name: wine_worker
+    volumes:
+      - ./folder_worker:/app
+    command: python worker.py
+    depends_on:
+      - broker
+      - rabbitmq
+      - model
+      - database
+    env_file:
+      - .env
+
+      
+  # worker:
+  #   build:
+  #     context: ./folder_broker
+  #   image: wine_worker_image
+  #   container_name: wine_worker
+  #   volumes:
+  #     - ./folder_broker:/app
+  #   command: python worker.py
+  #   depends_on:
+  #     - broker
+  #     - rabbitmq
+  #     - model
+  #     - database
+  #   env_file:
+  #     - .env
+
+
+
   rabbitmq:
     image: rabbitmq:3.10-management
     container_name: wine_rabbit
@@ -25,6 +59,8 @@ services:
       - ./folder_database:/app
     depends_on:
       - model
+    env_file:
+      - .env
 
   broker:
     build:
@@ -39,6 +75,8 @@ services:
     depends_on:
       - database
       - model
+    env_file:
+      - .env
 
   model:
     build:
@@ -49,5 +87,7 @@ services:
       - "5000:5000"
     volumes:
       - ./folder_model:/app
+    env_file:
+      - .env
     # command: >
     #   mlflow models serve -m /app/model -h 0.0.0.0 -p 5000 --env-manager=local

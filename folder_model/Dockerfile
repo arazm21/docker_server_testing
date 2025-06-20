@@ -4,7 +4,7 @@ FROM continuumio/miniconda3
 # Set working directory
 WORKDIR /app
 
-COPY .env .  
+# COPY .env .  
 
 
 # Copy custom OpenSSL config (for unsafe legacy renegotiation)

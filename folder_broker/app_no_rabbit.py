@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Query, HTTPException
 from pydantic import BaseModel
-from database_client import DatabaseClient
-from model_client import ModelClient
-from predictor import WineQualityPredictor
+from shared.database_client import DatabaseClient
+from shared.model_client import ModelClient
+from shared.predictor import WineQualityPredictor
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from fastapi import Request

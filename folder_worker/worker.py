@@ -2,9 +2,9 @@
 
 import pika
 import json
-from database_client import DatabaseClient
-from model_client import ModelClient
-from predictor import WineQualityPredictor
+from shared.database_client import DatabaseClient
+from shared.model_client import ModelClient
+from shared.predictor import WineQualityPredictor
 from dotenv import load_dotenv
 import os
 import logging

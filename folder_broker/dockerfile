@@ -7,7 +7,7 @@ COPY ./apache.conf /etc/apache2/sites-enabled/000-default.conf
 # Set working directory
 WORKDIR /app
 
-COPY .env .  
+# COPY .env .  
 
 
 # Copy and install dependencies
