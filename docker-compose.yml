@@ -6,10 +6,9 @@ services:
     build:
       context: ./folder_worker
     image: wine_worker_image
-    container_name: wine_worker
     volumes:
       - ./folder_worker:/app
-    command: python worker.py
+    command: python rpc_worker_async.py
     depends_on:
       - broker
       - rabbitmq
@@ -17,32 +16,16 @@ services:
       - database
     env_file:
       - .env
-
-      
-  # worker:
-  #   build:
-  #     context: ./folder_broker
-  #   image: wine_worker_image
-  #   container_name: wine_worker
-  #   volumes:
-  #     - ./folder_broker:/app
-  #   command: python worker.py
-  #   depends_on:
-  #     - broker
-  #     - rabbitmq
-  #     - model
-  #     - database
-  #   env_file:
-  #     - .env
-
-
+    deploy:  # Enables scaling
+      replicas: ${WORKER_REPLICAS:-1}
+    restart: on-failure
 
   rabbitmq:
     image: rabbitmq:3.10-management
     container_name: wine_rabbit
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_AMQP_PORT:-5672}:5672"
+      - "${RABBITMQ_UI_PORT:-15672}:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -53,7 +36,7 @@ services:
     image: database_image
     container_name: database_container
     ports:
-      - "8000:8000"
+      - "${DATABASE_PORT:-8000}:8000"
     command: uvicorn app.main:app --host 0.0.0.0 --reload
     volumes:
       - ./folder_database:/app
@@ -68,7 +51,7 @@ services:
     image: broker_image
     container_name: broker_container
     ports:
-      - "3000:3000"
+      - "${BROKER_PORT:-3000}:3000"
     command: uvicorn app:app --host 0.0.0.0 --reload --port 3000
     volumes:
       - ./folder_broker:/app
@@ -84,10 +67,8 @@ services:
     image: model_server_image
     container_name: model_container
     ports:
-      - "5000:5000"
+      - "${MODEL_PORT:-5000}:5000"
     volumes:
       - ./folder_model:/app
     env_file:
       - .env
-    # command: >
-    #   mlflow models serve -m /app/model -h 0.0.0.0 -p 5000 --env-manager=local

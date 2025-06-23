@@ -1,3 +1,4 @@
 pika
 dotenv
 requests
+aio_pika

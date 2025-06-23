@@ -1,34 +1,46 @@
 from fastapi import FastAPI, Query, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
-from rpc_client import RpcClient
+from rpc_client_async import AsyncRpcClient  # UPDATED import
 import os
 import logging
+import asyncio
+
 LOGGING_ENABLED = os.getenv("LOGGING", "0") == "1"
 logging.basicConfig(level=logging.INFO if LOGGING_ENABLED else logging.CRITICAL)
 
 app = FastAPI()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
 )
 
 templates = Jinja2Templates(directory="templates")
-rpc_client = RpcClient()
+
+# Declare global async RPC client
+rpc_client: AsyncRpcClient = None
+
+@app.on_event("startup")
+async def startup_event():
+    global rpc_client
+    rpc_client = AsyncRpcClient()
+    await rpc_client.connect()
+    logging.info("Async RPC client connected")
 
 @app.get("/")
-def read_root(request: Request):
+async def read_root(request: Request):
     return templates.TemplateResponse("index2.html", {"request": request})
 
 @app.get("/predict")
-def predict(wine_id: int = Query(...), real_time_measurement: float = Query(...)):
+async def predict(wine_id: int = Query(...), real_time_measurement: float = Query(...)):
     try:
         payload = {"wine_id": wine_id, "real_time_measurement": real_time_measurement}
-        response = rpc_client.call(payload)
+        response = await rpc_client.call(payload)
         logging.info("Prediction result: %s", response)
         if "error" in response:
             raise HTTPException(status_code=400, detail=response["error"])
-        return  {"prediction": response}
+        return {"prediction": response}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
