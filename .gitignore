@@ -3,4 +3,4 @@ __pycache__
 mlruns
 .env
 downloaded_models
-folder_database/features.db
+folder_database/features.db 
