@@ -40,7 +40,7 @@ async def predict(wine_id: int = Query(...), real_time_measurement: float = Quer
         logging.info("Prediction result: %s", response)
         if "error" in response:
             raise HTTPException(status_code=400, detail=response["error"])
-        return {"prediction": response}
+        return response
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

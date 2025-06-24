@@ -49,7 +49,7 @@
         async function predict() {
             const wineId = document.getElementById('wineId').value;
             const realTimeMeasurement = document.getElementById('realTimeMeasurement').value;
-
+    
             document.getElementById('result').textContent = '';
             document.getElementById('error').textContent = '';
 
@@ -59,24 +59,29 @@
             }
 
             try {
-              const response = await fetch(`/predict?wine_id=${wineId}&real_time_measurement=${realTimeMeasurement}`);
-              
-              if (!response.ok) {
-                  const errorData = await response.json();
-                  throw new Error(errorData.detail || 'Error occurred');
-              }
-
-              const data = await response.json();
-
-              // Extract prediction from nested structure
-              const predictionValue = data.prediction.predictions[0];
-
-              document.getElementById('result').textContent = 'Prediction: ' + predictionValue.toFixed(3);
-          } catch (err) {
-              document.getElementById('error').textContent = err.message;
-          }
+                const response = await fetch(`/predict?wine_id=${wineId}&real_time_measurement=${realTimeMeasurement}`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Error occurred');
+                }
+    
+                const data = await response.json();
+    
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+    
+                const predictionValue = data.predictions[0];
+                const returnedWineId = data.wine_id;
+                
+                document.getElementById('result').textContent = `Wine ID: ${returnedWineId} | Prediction: ${predictionValue.toFixed(3)}`;
+            } catch (err) {
+                document.getElementById('error').textContent = err.message;
+            }
         }
     </script>
+    
 
 </body>
 </html>

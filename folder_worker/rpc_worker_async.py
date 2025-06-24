@@ -44,7 +44,10 @@ async def on_request(message: aio_pika.IncomingMessage):
             elif not isinstance(raw_result["predictions"], list) or not raw_result["predictions"]:
                 response = {"error": "Model returned empty predictions"}
             else:
-                response = raw_result
+                response = {
+                    "wine_id": wine_id,
+                    "predictions": raw_result["predictions"]
+                }
 
         except Exception as e:
             logging.exception("Error during prediction")
