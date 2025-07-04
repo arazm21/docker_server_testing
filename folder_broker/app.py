@@ -33,9 +33,16 @@ async def read_root(request: Request):
     return templates.TemplateResponse("index2.html", {"request": request})
 
 @app.get("/predict")
-async def predict(wine_id: int = Query(...), real_time_measurement: float = Query(...)):
+async def predict(request: Request,wine_id: int = Query(...), real_time_measurement: float = Query(...)):
     try:
-        payload = {"wine_id": wine_id, "real_time_measurement": real_time_measurement}
+        client_ip = request.client.host
+        payload = {
+            "wine_id": wine_id,
+            "real_time_measurement": real_time_measurement,
+            "sender_info": {
+                "ip": client_ip
+            }
+        }
         response = await rpc_client.call(payload)
         logging.info("Prediction result: %s", response)
         if "error" in response:

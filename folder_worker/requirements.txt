@@ -2,3 +2,6 @@ pika
 dotenv
 requests
 aio_pika
+azure-eventhub
+azure-identity
+aiohttp

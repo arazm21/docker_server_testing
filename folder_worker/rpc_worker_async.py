@@ -7,12 +7,18 @@ from dotenv import load_dotenv
 from shared.database_client import DatabaseClient
 from shared.model_client import ModelClient
 from shared.predictor import WineQualityPredictor
+from shared.send_log_good import EventHubLogger
+
 
 load_dotenv(dotenv_path="../.env")
 
+
 LOGGING_ENABLED = os.getenv("LOGGING", "0") == "1"
 logging.basicConfig(level=logging.INFO if LOGGING_ENABLED else logging.CRITICAL)
-
+if LOGGING_ENABLED:
+    eventhub_logger = EventHubLogger()
+    
+    
 AMQP_URL = (
     "amqp://guest:guest@rabbitmq:5672/"
     if os.getenv("OP_MODE") == "DOCKER"
@@ -23,6 +29,8 @@ REQUEST_QUEUE = "predict_request"
 
 # ADD this global variable
 exchange = None
+
+
 
 async def on_request(message: aio_pika.IncomingMessage):
     global exchange
@@ -59,7 +67,13 @@ async def on_request(message: aio_pika.IncomingMessage):
             body=json.dumps(response).encode(),
             correlation_id=message.correlation_id
         )
-
+        if LOGGING_ENABLED:
+            log_message = {
+                'app': 'alexandre-app',
+                'data': {'Received request': payload,
+                        "Sending response": response}
+            }
+            await eventhub_logger.log(message=log_message)
         # FIXED: Use global `exchange` instead of `message.channel.default_exchange`
         await exchange.publish(reply_message, routing_key=message.reply_to)
 
