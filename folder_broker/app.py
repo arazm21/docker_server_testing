@@ -5,6 +5,8 @@ from rpc_client_async import AsyncRpcClient  # UPDATED import
 import os
 import logging
 import asyncio
+from fastapi.staticfiles import StaticFiles
+
 
 LOGGING_ENABLED = os.getenv("LOGGING", "0") == "1"
 logging.basicConfig(level=logging.INFO if LOGGING_ENABLED else logging.CRITICAL)
@@ -20,6 +22,7 @@ templates = Jinja2Templates(directory="templates")
 
 # Declare global async RPC client
 rpc_client: AsyncRpcClient = None
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.on_event("startup")
 async def startup_event():
