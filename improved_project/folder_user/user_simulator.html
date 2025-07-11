@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wine Quality User Simulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      max-width: 600px;
+    }
+    input, button {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 100%;
+    }
+    .log, .result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f3f3f3;
+      border-radius: 8px;
+      font-family: monospace;
+    }
+    .log-item {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🍷 Wine Quality Simulator</h1>
+
+  <h3>Send New Prediction</h3>
+  <input type="number" id="wine_id" placeholder="Wine ID" />
+  <input type="number" id="rtm" placeholder="Real-Time Measurement" step="0.01" />
+  <button onclick="sendPrediction()">Send</button>
+
+  <div class="log" id="task_log"></div>
+
+  <h3>Fetch Prediction Result</h3>
+  <input type="text" id="fetch_task_id" placeholder="Task ID" />
+  <button onclick="fetchResult()">Fetch</button>
+
+  <div class="result" id="result_output"></div>
+
+  <script>
+    const taskLog = [];
+
+    async function sendPrediction() {
+      const wineId = document.getElementById('wine_id').value;
+      const rtm = document.getElementById('rtm').value;
+
+      if (!wineId || !rtm) {
+        alert('Please fill in both Wine ID and RTM.');
+        return;
+      }
+      console.log("wineId:", wineId);
+      console.log("RTM:", rtm);
+      console.log("taskLog:", taskLog);
+      try {
+        const response = await fetch('http://localhost:4000/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            wine_id: parseInt(wineId),
+            real_time_measurement: parseFloat(rtm),
+          }),
+        }); 
+        console.log("response:", response);
+        const data = await response.json();
+        taskLog.push({ wine_id: wineId, rtm, task_id: data.task_id });
+        updateTaskLog();
+      } catch (err) {
+        alert('Failed to send request: ' + err.message);
+      }
+    }
+
+    async function fetchResult() {
+      const taskId = document.getElementById('fetch_task_id').value;
+      if (!taskId) {
+        alert('Please enter a Task ID');
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:4000/receive/${taskId}`);
+        const data = await response.json();
+        document.getElementById('result_output').innerText = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById('result_output').innerText = '❌ Error fetching result';
+      }
+    }
+
+    function updateTaskLog() {
+      const logDiv = document.getElementById('task_log');
+      logDiv.innerHTML = '<h4>Sent Tasks</h4>';
+      taskLog.forEach(item => {
+        logDiv.innerHTML += `
+          <div class="log-item">
+            <strong>Task ID:</strong> ${item.task_id}<br />
+            Wine ID: ${item.wine_id}, RTM: ${item.rtm}
+          </div>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+aio_pika
+python-dotenv
+aio_pika
+redis
+python-dotenv
+requests
+pika
+dotenv
+requests
+aio_pika
+azure-eventhub
+azure-identity
+aiohttp

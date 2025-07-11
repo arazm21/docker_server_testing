@@ -4,3 +4,4 @@ mlruns
 .env
 downloaded_models
 folder_database/features.db 
+improved_project/.env
